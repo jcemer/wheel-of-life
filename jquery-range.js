@@ -51,39 +51,39 @@
 ;(function ($) {
     'use strict';
 
-    var store = [],
-        isTouch = document.ontouchstart === null,
-        defaults = {
-            name: 'range',
-            tapGesture: isTouch ? 'tap' : 'click',
-            startGesture: isTouch ? 'touchstart' : 'mousedown',
-            moveGesture: isTouch ? 'touchmove' : 'mousemove',
-            stopGesture: isTouch ? 'touchend touchcancel' : 'mouseup',
-        };
+    var store    = [];
+    var isTouch  = document.ontouchstart === null;
+    var defaults = {
+        name:         'range',
+        tapGesture:   isTouch ? 'tap' : 'click',
+        startGesture: isTouch ? 'touchstart' : 'mousedown',
+        moveGesture:  isTouch ? 'touchmove' : 'mousemove',
+        stopGesture:  isTouch ? 'touchend touchcancel' : 'mouseup'
+    };
 
     function Range(input, labels) {
-        this.input = $(input);
+        this.input     = $(input);
         this.container = this.input.wrap('<div>').parent();
         this.container.addClass(defaults.name + ' ' + this.input[0].className);
 
         // number
-        this.min = parseInt(this.input.attr('min'), 10);
-        this.max = parseInt(this.input.attr('max'), 10);
-        this.amount = (this.max - this.min) + 1;
-        this.current = parseInt(this.input.val(), 10) - this.min;
+        this.min       = parseInt(this.input.attr('min'), 10);
+        this.max       = parseInt(this.input.attr('max'), 10);
+        this.amount    = (this.max - this.min) + 1;
+        this.current   = parseInt(this.input.val(), 10) - this.min;
 
         // html
-        this.btn = $('<div class="btn">');
-        this.fill = $('<div class="fill">');
-        this.bar = $('<div class="bar">').append(this.btn, this.fill);
+        this.btn       = $('<div class="btn">');
+        this.fill      = $('<div class="fill">');
+        this.bar       = $('<div class="bar">').append(this.btn, this.fill);
         this.container.append(this.bar);
 
-        this.btn.size = this.btn.width();
-        this.size = this.input.width() - this.btn.size;
-        this.gap = this.size / (this.amount - 1);
+        this.btn.size  = this.btn.width();
+        this.size      = this.input.width() - this.btn.size;
+        this.gap       = this.size / (this.amount - 1);
 
         // legend
-        this.legend = legend(labels, this);
+        this.legend    = legend(labels, this);
         this.container.append(this.legend);
 
         // init
@@ -92,10 +92,10 @@
     }
 
     function legend(labels, range) {
-        var diff = range.amount - labels.length,
-            gaps = labels.length - 1,
-            size = Math.floor(range.size / (range.amount - 1)),
-            container, tmp, i;
+        var diff = range.amount - labels.length;
+        var gaps = labels.length - 1;
+        var size = Math.floor(range.size / (range.amount - 1));
+        var container, tmp, i;
 
         // labels
         if (diff) {
@@ -148,19 +148,19 @@
 
     function events() {
         // singleton pattern
-        var doc = $(document),
-            className = '.' + defaults.name;
+        var doc       = $(document);
+        var className = '.' + defaults.name;
 
         doc.on(defaults.startGesture, className + ' .btn', function (event) {
-            var range = getRange(this),
-                pos = range && range.pos(),
-                initPos = event.pageX || (event.touches[0] && event.touches[0].pageX) || 0;
+            var range   = getRange(this);
+            var pos     = range && range.pos();
+            var initPos = event.pageX || (event.touches[0] && event.touches[0].pageX) || 0;
 
             function animate(event) {
                 event.preventDefault();
-                pos = range.pos() - initPos;
+                pos  = range.pos() - initPos;
                 pos += event.pageX || (event.touches[0] && event.touches[0].pageX) || 0;
-                pos = Math.max(0, Math.min(pos, range.size));
+                pos  = Math.max(0, Math.min(pos, range.size));
                 range.move(pos / range.gap);
             }
 
@@ -201,9 +201,8 @@
 
     // plugin
     $.fn.range = function() {
-        var labels;
         events();
-        labels = Array.prototype.slice.call(arguments);
+        var labels = Array.prototype.slice.call(arguments);
         return this.each(function() {
             createRange(this, labels);
         });
