@@ -32,17 +32,18 @@
         });
     };
 
-    $.translateX = function(element, delta) {
+    $.translate = function(element, deltaX, deltaY) {
         var property = property = $.CSS.getProperty('Transform');
-        if (typeof delta === 'number') {
-            delta = delta + 'px';
-        }
+        if (typeof deltaX === 'number') deltaX = deltaX + 'px';
+        if (typeof deltaY === 'number') deltaY = deltaY + 'px';
+ 
         if ($.supports.transform3d) {
-            return element.style[property] = 'translate3d(' + delta + ', 0, 0)';
+            element.style[property] = 'translate3d(' + deltaX + ', ' + deltaY + ', 0)';
         } else if ($.supports.transform) {
-            return element.style[property] = 'translate(' + delta + ', 0)';
+            element.style[property] = 'translate(' + deltaX + ', ' + deltaY + ')';
         } else {
-            return element.style.left = delta;
+            element.style.left      = deltaX;
+            element.style.top       = deltaY;
         }
     };
 })(jQuery);
@@ -60,8 +61,9 @@
         stopGesture:  isTouch ? 'touchend touchcancel' : 'mouseup'
     };
 
-    function Range(input, labels) {
+    function Range(input, angle, labels) {
         this.input     = $(input);
+        this.angle     = angle;
         this.container = this.input.wrap('<div>').parent();
         this.container.addClass(defaults.name + ' ' + this.input[0].className);
 
@@ -100,12 +102,16 @@
         root.on(defaults.startGesture, className + ' .btn', function (event) {
             var range   = getRange(this);
             var pos     = range && range.pos();
-            var initPos = event.pageX || (event.touches[0] && event.touches[0].pageX) || 0;
+            var initPos = Math.sin(range.angle) * (event.pageX || (event.touches[0] && event.touches[0].pageX) || 0)
+                        + Math.cos(range.angle) * (event.pageY || (event.touches[0] && event.touches[0].pageY) || 0);
+
 
             function animate(event) {
                 event.preventDefault();
                 pos  = range.pos() - initPos;
-                pos += event.pageX || (event.touches[0] && event.touches[0].pageX) || 0;
+                pos += Math.sin(range.angle) * (event.pageX || (event.touches[0] && event.touches[0].pageX) || 0)
+                     + Math.cos(range.angle) * (event.pageY || (event.touches[0] && event.touches[0].pageY) || 0);
+
                 pos  = Math.max(0, Math.min(pos, range.size));
                 range.move(pos / range.gap);
             }
@@ -170,7 +176,7 @@
         },
         move: function(to) {
             var pos = to * this.gap;
-            $.translateX(this.btn[0], pos);
+            $.translate(this.btn[0], Math.sin(this.angle) * pos, Math.cos(this.angle) * pos);
             this.fill.width(pos);
             this.input.trigger('move', [to, this]);
         },
@@ -184,9 +190,9 @@
         }
     });
 
-    function createRange(input, labels) {
+    function createRange(input, angle, labels) {
         if (!$(input).closest('.' + defaults.name).length) {
-            var range = new Range(input, labels);
+            var range = new Range(input, angle, labels);
             range.container.data('range', range);
         }
     }
@@ -201,7 +207,7 @@
         var labels = [].slice.call(arguments);
         Range.events();
         return this.each(function() {
-            createRange($(this), labels);
+            createRange($(this), labels.shift(), labels);
         });
     };
 
