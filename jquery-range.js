@@ -51,7 +51,6 @@
 ;(function ($) {
     'use strict';
 
-    var store    = [];
     var isTouch  = document.ontouchstart === null;
     var defaults = {
         name:         'range',
@@ -83,7 +82,7 @@
         this.gap       = this.size / (this.amount - 1);
 
         // legend
-        this.legend    = legend(labels, this);
+        this.legend    = Range.legend(labels, this);
         this.container.append(this.legend);
 
         // init
@@ -91,7 +90,46 @@
         this.input.trigger('init', [this.current, this]);
     }
 
-    function legend(labels, range) {
+    Range.events = function () {
+        this.events = $.noop;
+        // singleton pattern
+
+        var root      = $(document);
+        var className = '.' + defaults.name;
+
+        root.on(defaults.startGesture, className + ' .btn', function (event) {
+            var range   = getRange(this);
+            var pos     = range && range.pos();
+            var initPos = event.pageX || (event.touches[0] && event.touches[0].pageX) || 0;
+
+            function animate(event) {
+                event.preventDefault();
+                pos  = range.pos() - initPos;
+                pos += event.pageX || (event.touches[0] && event.touches[0].pageX) || 0;
+                pos  = Math.max(0, Math.min(pos, range.size));
+                range.move(pos / range.gap);
+            }
+
+            function stop(event) {
+                root.off(defaults.moveGesture, animate);
+                root.off(defaults.stopGesture, stop);
+                range.moving(false);
+                range.change(pos / range.gap);
+            }
+
+            if (range) {
+                range.moving(true);
+                root.bind(defaults.moveGesture, animate);
+                root.bind(defaults.stopGesture, stop);
+            }
+        });
+
+        root.on(defaults.tapGesture, className + ' .label', function (event) {
+            (getRange(this)).change($(this).index());
+        });
+    }
+
+    Range.legend = function (labels, range) {
         var diff = range.amount - labels.length;
         var gaps = labels.length - 1;
         var size = Math.floor(range.size / (range.amount - 1));
@@ -146,65 +184,24 @@
         }
     });
 
-    function events() {
-        // singleton pattern
-        var doc       = $(document);
-        var className = '.' + defaults.name;
-
-        doc.on(defaults.startGesture, className + ' .btn', function (event) {
-            var range   = getRange(this);
-            var pos     = range && range.pos();
-            var initPos = event.pageX || (event.touches[0] && event.touches[0].pageX) || 0;
-
-            function animate(event) {
-                event.preventDefault();
-                pos  = range.pos() - initPos;
-                pos += event.pageX || (event.touches[0] && event.touches[0].pageX) || 0;
-                pos  = Math.max(0, Math.min(pos, range.size));
-                range.move(pos / range.gap);
-            }
-
-            function stop(event) {
-                doc.off(defaults.moveGesture, animate);
-                doc.off(defaults.stopGesture, stop);
-                range.moving(false);
-                range.change(pos / range.gap);
-            }
-
-            if (range) {
-                range.moving(true);
-                doc.bind(defaults.moveGesture, animate);
-                doc.bind(defaults.stopGesture, stop);
-            }
-        });
-
-        doc.on(defaults.tapGesture, className + ' .label', function (event) {
-            (getRange(this)).change($(this).index());
-        });
-        
-        events = function() {};
-    }
-
     function createRange(input, labels) {
-        var range;
         if (!$(input).closest('.' + defaults.name).length) {
-            range = new Range(input, labels);
-            range.container.data(defaults.name + '-store', store.length);
-            store.push(range);
+            var range = new Range(input, labels);
+            range.container.data('range', range);
         }
     }
 
     function getRange(item) {
         var element = $(item).closest('.' + defaults.name);
-        return store[element.data(defaults.name + '-store')];
+        return element.data('range');
     }
 
     // plugin
     $.fn.range = function() {
-        events();
-        var labels = Array.prototype.slice.call(arguments);
+        var labels = [].slice.call(arguments);
+        Range.events();
         return this.each(function() {
-            createRange(this, labels);
+            createRange($(this), labels);
         });
     };
 
