@@ -1,8 +1,8 @@
-# Zepto Range
+# jQuery Range
 
-http://jcemer.com/zepto-range
+http://jcemer.com/jquery-range
 
-Input range implementation to works with touch using Zepto
+Input range implementation to works with touch using jQuery
 
 ``` html
 <input type="range" min="0" max="4" value="0">

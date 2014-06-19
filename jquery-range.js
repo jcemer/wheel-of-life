@@ -45,8 +45,7 @@
             return element.style.left = delta;
         }
     };
-})(Zepto);
-
+})(jQuery);
 
 
 ;(function ($) {
@@ -210,4 +209,4 @@
         });
     };
 
-})(Zepto);
+})(jQuery);
