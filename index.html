@@ -16,7 +16,6 @@
             
             <div id="samples-01">
                 <input type="range" min="0" max="4" value="0">
-                <input type="range" class="inside" min="0" max="4" value="0">
             </div>
             
             <div id="samples-02">
@@ -26,27 +25,13 @@
             <div id="samples-03" style="padding-top: 400px">
                 <input type="range" min="-4" max="4" value="0">
             </div>
-            
-            <div id="samples-04">
-                <h2>Events</h2>
-                <input type="range" class="inside" min="0" max="2" value="1">
-            </div>
 
             <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.js"></script>
             <script src="jquery-range.js"></script>
             <script>
                 $('#samples-01 input[type="range"]').range(Math.PI / 2);
-                $('#samples-02 input[type="range"]').range(Math.PI / 2, '0', '3', '6');
-                $('#samples-03 input[type="range"]').range(Math.PI, 'worst', 'best');
-                
-                // SAMPLE 04
-                var sample04 = $('#samples-04 input[type="range"]');
-                sample04.on('change init', function (event, current, range) {
-                    var labels = range.legend.children();
-                    labels.removeClass('active');
-                    labels.eq(current).addClass('active');
-                });
-                sample04.range(Math.PI / 4, 'worst', 'normal', 'best');
+                $('#samples-02 input[type="range"]').range(Math.PI / 2);
+                $('#samples-03 input[type="range"]').range(Math.PI);
             </script>
         </div>
         <a href="//github.com/jcemer/jquery-range"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png" alt="Fork me on GitHub"></a>

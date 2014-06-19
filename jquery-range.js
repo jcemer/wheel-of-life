@@ -61,7 +61,7 @@
         stopGesture:  isTouch ? 'touchend touchcancel' : 'mouseup'
     };
 
-    function Range(input, angle, labels) {
+    function Range(input, angle) {
         this.input     = $(input);
         this.angle     = angle;
         this.container = this.input.wrap('<div>').parent();
@@ -75,17 +75,11 @@
 
         // html
         this.btn       = $('<div class="btn">');
-        this.fill      = $('<div class="fill">');
-        this.bar       = $('<div class="bar">').append(this.btn, this.fill);
-        this.container.append(this.bar);
+        this.container.append(this.btn);
 
         this.btn.size  = this.btn.width();
         this.size      = this.input.width() - this.btn.size;
         this.gap       = this.size / (this.amount - 1);
-
-        // legend
-        this.legend    = Range.legend(labels, this);
-        this.container.append(this.legend);
 
         // init
         this.change(this.current);
@@ -129,42 +123,6 @@
                 root.bind(defaults.stopGesture, stop);
             }
         });
-
-        root.on(defaults.tapGesture, className + ' .label', function (event) {
-            (getRange(this)).change($(this).index());
-        });
-    }
-
-    Range.legend = function (labels, range) {
-        var diff = range.amount - labels.length;
-        var gaps = labels.length - 1;
-        var size = Math.floor(range.size / (range.amount - 1));
-        var container, tmp, i;
-
-        // labels
-        if (diff) {
-            if (!labels.length || diff % gaps) {
-                labels = new Array(range.amount);
-            } else {
-                tmp = new Array(diff / gaps);
-                tmp.unshift(null, 0);
-                for (i = 1; i < range.amount; i += tmp.length - 1) {
-                    tmp[0] = i;
-                    [].splice.apply(labels, tmp);
-                }
-            }
-        }
-
-        // html
-        container = $('<div class="legend" aria-hidden="true">');
-        container.append($.map(labels, function(item) {
-            return $('<div class="label">').text(item == undefined ? '' : item);
-        }));
-
-        container.children().width(size);
-        container.find(':first-child, :last-child').width(size / 2 + range.btn.size / 2);
-
-        return container;
     }
 
     $.extend(Range.prototype, {
@@ -177,7 +135,6 @@
         move: function(to) {
             var pos = to * this.gap;
             $.translate(this.btn[0], Math.sin(this.angle) * pos, Math.cos(this.angle) * pos);
-            this.fill.width(pos);
             this.input.trigger('move', [to, this]);
         },
         change: function(to) {
@@ -190,9 +147,9 @@
         }
     });
 
-    function createRange(input, angle, labels) {
+    function createRange(input, angle) {
         if (!$(input).closest('.' + defaults.name).length) {
-            var range = new Range(input, angle, labels);
+            var range = new Range(input, angle);
             range.container.data('range', range);
         }
     }
@@ -203,11 +160,10 @@
     }
 
     // plugin
-    $.fn.range = function() {
-        var labels = [].slice.call(arguments);
+    $.fn.range = function(angle) {
         Range.events();
         return this.each(function() {
-            createRange($(this), labels.shift(), labels);
+            createRange($(this), angle);
         });
     };
 
