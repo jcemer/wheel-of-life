@@ -61,26 +61,21 @@
     }
 
     function Range(angle, size) {
-        this.angle   = angle;
-        this.size    = size;
+        this.angle     = angle;
+        this.size      = size;
 
         // html
-        this.container = $('<div data-' + defaults.rangeAttr + '>');
-        this.container.addClass(defaults.rangeAttr);
-
-        this.input   = $('<input type=range min=1 max=4 value=1>');
-
-        this.btn     = $('<div data-' + defaults.rangeBtnAttr + '>');
-        this.btn.addClass(defaults.rangeBtnAttr);
-
+        this.container = $('<div data-' + defaults.rangeAttr + ' class=' + defaults.rangeAttr + '>');
+        this.btn       = $('<div data-' + defaults.rangeBtnAttr + ' class=' + defaults.rangeBtnAttr + '>');
+        this.input     = $('<input type=range min=1 max=4 value=1>');
         this.container.append(this.input);
         this.container.append(this.btn);
 
         // number
-        this.min     = parseInt(this.input.attr('min'), 10);
-        this.max     = parseInt(this.input.attr('max'), 10);
-        this.gap     = size / (this.max - this.min);
-        this.current = parseInt(this.input.val(), 10) - this.min;
+        this.min       = parseInt(this.input.attr('min'), 10);
+        this.max       = parseInt(this.input.attr('max'), 10);
+        this.gap       = size / (this.max - this.min);
+        this.current   = parseInt(this.input.val(), 10) - this.min;
 
         // init
         this.change(this.current);
