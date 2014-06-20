@@ -46,7 +46,10 @@
 ;(function ($) {
     'use strict';
 
-    var isTouch  = document.ontouchstart === null;
+    var isTouch  = (function () {
+      return 'ontouchstart' in window // works on most browsers
+          || 'onmsgesturechange' in window; // works on ie10
+    })();
     var defaults = {
         canvasAttr:    'wheel-of-life-canvas',
         rangeAttr:     'wheel-of-life-range',
