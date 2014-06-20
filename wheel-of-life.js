@@ -187,14 +187,14 @@
         root.on(defaults.startGesture, '[data-' + defaults.rangeBtnAttr + ']', function (event) {
             var range   = getRange(this);
             var pos     = range.pos();
-            var initPos = Math.sin(range.angle) * (event.pageX || (event.touches[0] && event.touches[0].pageX) || 0)
-                        + Math.cos(range.angle) * (event.pageY || (event.touches[0] && event.touches[0].pageY) || 0);
+            var initPos = Math.sin(range.angle) * (event.pageX || (event.originalEvent.touches[0] && event.originalEvent.touches[0].pageX) || 0)
+                        + Math.cos(range.angle) * (event.pageY || (event.originalEvent.touches[0] && event.originalEvent.touches[0].pageY) || 0);
 
             function animate(event) {
                 event.preventDefault();
                 pos  = range.pos() - initPos;
-                pos += Math.sin(range.angle) * (event.pageX || (event.touches[0] && event.touches[0].pageX) || 0)
-                     + Math.cos(range.angle) * (event.pageY || (event.touches[0] && event.touches[0].pageY) || 0);
+                pos += Math.sin(range.angle) * (event.pageX || (event.originalEvent.touches[0] && event.originalEvent.touches[0].pageX) || 0)
+                     + Math.cos(range.angle) * (event.pageY || (event.originalEvent.touches[0] && event.originalEvent.touches[0].pageY) || 0);
 
                 pos  = Math.max(0, Math.min(pos, range.size));
                 range.move(pos / range.gap);
