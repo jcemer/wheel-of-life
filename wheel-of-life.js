@@ -79,11 +79,24 @@
             this.clear();
             this.renderArc();
             this.renderEdgesLine();
+            this.renderEdges();
         },
         renderArc: function () {
             this.ctx.beginPath();
             this.ctx.arc(this.halfSize, this.halfSize, this.centerRadius, 0, 2 * Math.PI);
             this.ctx.stroke();
+        },
+        renderEdges: function () {
+            for (var edge = 0; edge < this.edges.length; edge++) {
+                this.ctx.beginPath();
+                this.ctx.lineTo(
+                    this.edges[edge].sin * this.centerRadius + this.halfSize,
+                    this.edges[edge].cos * this.centerRadius + this.halfSize);
+                this.ctx.lineTo(
+                    this.edges[edge].sin * this.halfSize + this.halfSize,
+                    this.edges[edge].cos * this.halfSize + this.halfSize);
+                this.ctx.stroke();
+            }
         },
         renderEdgesLine: function () {
             this.ctx.beginPath();
@@ -92,11 +105,17 @@
             }
             this.ctx.closePath();
             this.ctx.stroke();
+            this.ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+            this.ctx.fill();
         },
         moveEdge: function (edge, angle, pos) {
+            var sin = Math.sin(angle);
+            var cos = Math.cos(angle);
             this.edges[edge] = {
-                x: Math.sin(angle) * (pos + this.centerRadius) + this.halfSize,
-                y: Math.cos(angle) * (pos + this.centerRadius) + this.halfSize
+                sin: sin,
+                cos: cos,
+                x:   sin * (pos + this.centerRadius) + this.halfSize,
+                y:   cos * (pos + this.centerRadius) + this.halfSize
             }
             this.allowRender && this.render();
         }
