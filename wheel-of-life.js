@@ -58,9 +58,24 @@
     };
 
     function Canvas(size, centerRadius) {
-        this.element   = $('<canvas class=' + defaults.canvasAttr + ' width=' + size + ' height=' + size + ' />');
-        this.ctx       = this.element[0].getContext('2d');
+        this.size         = size;
+        this.halfSize     = size / 2;
+        this.centerRadius = centerRadius;
+
+        this.element      = $('<canvas class=' + defaults.canvasAttr + ' width=' + size + ' height=' + size + ' />');
+        this.ctx          = this.element[0].getContext('2d');
+
+        this.render();
     }
+
+    $.extend(Canvas.prototype, {
+        render: function () {
+            this.ctx.beginPath();
+            this.ctx.arc(this.halfSize, this.halfSize, this.centerRadius, 0, 2 * Math.PI);
+            this.ctx.stroke();
+        }
+    });
+
 
     function Range(angle, size) {
         this.angle     = angle;
@@ -143,8 +158,8 @@
         });
     }
 
-    function createCanvas(container, size) {
-        var canvas = new Canvas(size);
+    function createCanvas(container, size, centerRadius) {
+        var canvas = new Canvas(size, centerRadius);
         container.append(canvas.element);
         return canvas;
     }
