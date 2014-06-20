@@ -60,36 +60,60 @@
 
     }
 
-    function Range(input, angle, size) {
-        this.input     = $(input);
-        this.angle     = angle;
-        this.container = this.input.wrap('<div data-' + defaults.rangeAttr + '>').parent();
-        this.container.addClass(defaults.rangeAttr)
-
-        // number
-        this.min       = parseInt(this.input.attr('min'), 10);
-        this.max       = parseInt(this.input.attr('max'), 10);
-        this.amount    = (this.max - this.min) + 1;
-        this.current   = parseInt(this.input.val(), 10) - this.min;
+    function Range(angle, size) {
+        this.angle   = angle;
+        this.size    = size;
 
         // html
-        this.btn       = $('<div data-' + defaults.rangeBtnAttr + '>');
+        this.container = $('<div data-' + defaults.rangeAttr + '>');
+        this.container.addClass(defaults.rangeAttr);
+
+        this.input   = $('<input type=range min=1 max=4 value=1>');
+
+        this.btn     = $('<div data-' + defaults.rangeBtnAttr + '>');
         this.btn.addClass(defaults.rangeBtnAttr);
+
+        this.container.append(this.input);
         this.container.append(this.btn);
 
-        this.size      = size;
-        this.gap       = size / (this.amount - 1);
+        // number
+        this.min     = parseInt(this.input.attr('min'), 10);
+        this.max     = parseInt(this.input.attr('max'), 10);
+        this.gap     = size / (this.max - this.min);
+        this.current = parseInt(this.input.val(), 10) - this.min;
 
         // init
         this.change(this.current);
         this.input.trigger('init', [this.current, this]);
     }
 
+    $.extend(Range.prototype, {
+        pos: function () {
+            return this.current * this.gap;
+        },
+        moving: function (status) {
+            return this.container.toggleClass('moving', status);
+        },
+        move: function(to) {
+            var pos = to * this.gap;
+            $.translate(this.btn[0], Math.sin(this.angle) * pos, Math.cos(this.angle) * pos);
+            this.input.trigger('move', [to, this]);
+        },
+        change: function(to) {
+            to = Math.round(to);
+            this.move(to);
+
+            this.current = to;
+            this.input.val(this.current + this.min);
+            this.input.trigger('change', [to, this]);
+        }
+    });
+
     Range.events = function () {
         this.events = $.noop;
         // singleton pattern
 
-        var root      = $(document);
+        var root = $(document);
 
         root.on(defaults.startGesture, '[data-' + defaults.rangeBtnAttr + ']', function (event) {
             var range   = getRange(this);
@@ -122,30 +146,9 @@
         });
     }
 
-    $.extend(Range.prototype, {
-        pos: function () {
-            return this.current * this.gap;
-        },
-        moving: function (status) {
-            return this.container.toggleClass('moving', status);
-        },
-        move: function(to) {
-            var pos = to * this.gap;
-            $.translate(this.btn[0], Math.sin(this.angle) * pos, Math.cos(this.angle) * pos);
-            this.input.trigger('move', [to, this]);
-        },
-        change: function(to) {
-            to = Math.round(to);
-            this.move(to);
-
-            this.current = to;
-            this.input.val(this.current + this.min);
-            this.input.trigger('change', [to, this]);
-        }
-    });
-
-    function createRange(input, angle, size) {
-        var range = new Range(input, angle, size);
+    function createRange(container, angle, size) {
+        var range = new Range(angle, size);
+        container.append(range.container);
         return range.container.data(defaults.rangeAttr, range);
     }
 
@@ -155,13 +158,13 @@
     }
 
     window.WheelOfLife = function(container, edges, centerRadius) {
-        var size         = container.width();
-        var halfSize     = size / 2;
+        var size     = container.width();
+        var halfSize = size / 2;
         for (var i = 0; i < edges; i++) {
-            var input        = $('<input type=range min=1 max=4 value=1>').appendTo(container);
-            var angle        = Math.PI * i / (edges / 2);
-            var rangeWrapper = createRange(input, angle, halfSize - centerRadius);
-            $.translate(rangeWrapper[0], centerRadius * Math.sin(angle) + halfSize, centerRadius * Math.cos(angle) + halfSize);
+            var angle          = Math.PI * i / (edges / 2);
+            var rangeContainer = createRange(container, angle, halfSize - centerRadius);
+            $.translate(rangeContainer[0], centerRadius * Math.sin(angle) + halfSize, 
+                                           centerRadius * Math.cos(angle) + halfSize);
         }
         Range.events();
     };
