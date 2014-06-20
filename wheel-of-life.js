@@ -56,7 +56,11 @@
         stopGesture:   isTouch ? 'touchend touchcancel' : 'mouseup'
     };
 
-    function Range(input, angle) {
+    function Canvas() {
+
+    }
+
+    function Range(input, angle, size) {
         this.input     = $(input);
         this.angle     = angle;
         this.container = this.input.wrap('<div data-' + defaults.rangeAttr + '>').parent();
@@ -73,8 +77,8 @@
         this.btn.addClass(defaults.rangeBtnAttr);
         this.container.append(this.btn);
 
-        this.size      = this.input.width();
-        this.gap       = this.size / (this.amount - 1);
+        this.size      = size;
+        this.gap       = size / (this.amount - 1);
 
         // init
         this.change(this.current);
@@ -140,8 +144,8 @@
         }
     });
 
-    function createRange(input, angle) {
-        var range = new Range(input, angle);
+    function createRange(input, angle, size) {
+        var range = new Range(input, angle, size);
         return range.container.data(defaults.rangeAttr, range);
     }
 
@@ -150,14 +154,16 @@
             .data(defaults.rangeAttr);
     }
 
-    window.WheelOfLife = function(container, edges) {
-        Range.events();
+    window.WheelOfLife = function(container, edges, centerRadius) {
+        var size         = container.width();
+        var halfSize     = size / 2;
         for (var i = 0; i < edges; i++) {
             var input        = $('<input type=range min=1 max=4 value=1>').appendTo(container);
             var angle        = Math.PI * i / (edges / 2);
-            var rangeWrapper = createRange(input, angle);
-            $.translate(rangeWrapper[0], 100 * Math.sin(angle) + 250, 100 * Math.cos(angle) + 250)
+            var rangeWrapper = createRange(input, angle, halfSize - centerRadius);
+            $.translate(rangeWrapper[0], centerRadius * Math.sin(angle) + halfSize, centerRadius * Math.cos(angle) + halfSize);
         }
+        Range.events();
     };
 
 })(jQuery);

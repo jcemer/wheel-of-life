@@ -58,10 +58,6 @@ h2 {
 
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-. */
 
-input[type="range"] {
-    width: 150px;
-}
-
 #container {
     position: relative;
     width: 500px;
