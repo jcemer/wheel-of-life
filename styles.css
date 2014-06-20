@@ -68,17 +68,17 @@ input[type="range"] {
     height: 500px;
 }
 
-.range {
+.wheel-of-life-range {
     position: absolute;
 }
-.range input {
+.wheel-of-life-range input {
     position: absolute;
     text-align: left;
     direction: ltr;
     left: -9999px;
 }
 
-.range .btn {
+.wheel-of-life-range-btn {
     margin-top: -16px;
     position: absolute;
     top: 0; left: -20px; /* btn half size */
@@ -102,7 +102,7 @@ input[type="range"] {
          -o-box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.1), 0 2px 5px rgba(0, 0, 0, 0.3);
             box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.1), 0 2px 5px rgba(0, 0, 0, 0.3);
 }
-.range .btn:active {
+.wheel-of-life-range .btn:active {
     border-color: rgba(255, 255, 255, .5);
     top: 1px;
     -webkit-box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1), 0px 1px 4px rgba(0, 0, 0, 0.3);
@@ -113,13 +113,13 @@ input[type="range"] {
 
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-. */
 
-.range .btn {
+.wheel-of-life-range .btn {
     -webkit-transition: 0.2s all ease-out;
        -moz-transition: 0.2s all ease-out;
          -o-transition: 0.2s all ease-out;
             transition: 0.2s all ease-out;
 }
-.range.moving .btn {
+.wheel-of-life-range.moving .btn {
     -webkit-transition: none;
        -moz-transition: none;
          -o-transition: none;

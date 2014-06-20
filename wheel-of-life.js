@@ -48,18 +48,19 @@
 
     var isTouch  = document.ontouchstart === null;
     var defaults = {
-        name:         'range',
-        tapGesture:   isTouch ? 'tap' : 'click',
-        startGesture: isTouch ? 'touchstart' : 'mousedown',
-        moveGesture:  isTouch ? 'touchmove' : 'mousemove',
-        stopGesture:  isTouch ? 'touchend touchcancel' : 'mouseup'
+        rangeAttr:     'wheel-of-life-range',
+        rangeBtnAttr:  'wheel-of-life-range-btn',
+        tapGesture:    isTouch ? 'tap' : 'click',
+        startGesture:  isTouch ? 'touchstart' : 'mousedown',
+        moveGesture:   isTouch ? 'touchmove' : 'mousemove',
+        stopGesture:   isTouch ? 'touchend touchcancel' : 'mouseup'
     };
 
     function Range(input, angle) {
         this.input     = $(input);
         this.angle     = angle;
-        this.container = this.input.wrap('<div>').parent();
-        this.container.addClass(defaults.name + ' ' + this.input[0].className);
+        this.container = this.input.wrap('<div data-' + defaults.rangeAttr + '>').parent();
+        this.container.addClass(defaults.rangeAttr)
 
         // number
         this.min       = parseInt(this.input.attr('min'), 10);
@@ -68,7 +69,8 @@
         this.current   = parseInt(this.input.val(), 10) - this.min;
 
         // html
-        this.btn       = $('<div class="btn">');
+        this.btn       = $('<div data-' + defaults.rangeBtnAttr + '>');
+        this.btn.addClass(defaults.rangeBtnAttr);
         this.container.append(this.btn);
 
         this.size      = this.input.width();
@@ -84,9 +86,8 @@
         // singleton pattern
 
         var root      = $(document);
-        var className = '.' + defaults.name;
 
-        root.on(defaults.startGesture, className + ' .btn', function (event) {
+        root.on(defaults.startGesture, '[data-' + defaults.rangeBtnAttr + ']', function (event) {
             var range   = getRange(this);
             var initPos = Math.sin(range.angle) * (event.pageX || (event.touches[0] && event.touches[0].pageX) || 0)
                         + Math.cos(range.angle) * (event.pageY || (event.touches[0] && event.touches[0].pageY) || 0);
@@ -141,12 +142,12 @@
 
     function createRange(input, angle) {
         var range = new Range(input, angle);
-        return range.container.data('range', range);
+        return range.container.data(defaults.rangeAttr, range);
     }
 
     function getRange(item) {
-        var element = $(item).closest('.' + defaults.name);
-        return element.data('range');
+        return $(item).closest('[data-' + defaults.rangeAttr + ']')
+            .data(defaults.rangeAttr);
     }
 
     window.WheelOfLife = function(container, edges) {
