@@ -22,18 +22,12 @@
     }
 
     $.supports = {
-        transform: !!($.CSS.getProperty('Transform')),
+        transform:   !!($.CSS.getProperty('Transform')),
         transform3d: !!(window.WebKitCSSMatrix && 'm11' in new WebKitCSSMatrix())
     };
 
-    $.supports.addClass = function () {
-        $.each(arguments, function () {
-            $('html').addClass(($.supports[this] ? '' : 'no-') + this);
-        });
-    };
-
     $.translate = function(element, deltaX, deltaY) {
-        var property = property = $.CSS.getProperty('Transform');
+        var property = $.CSS.getProperty('Transform');
         if (typeof deltaX === 'number') deltaX = deltaX + 'px';
         if (typeof deltaY === 'number') deltaY = deltaY + 'px';
  
@@ -77,8 +71,7 @@
         this.btn       = $('<div class="btn">');
         this.container.append(this.btn);
 
-        this.btn.size  = this.btn.width();
-        this.size      = this.input.width() - this.btn.size;
+        this.size      = this.input.width();
         this.gap       = this.size / (this.amount - 1);
 
         // init
@@ -95,10 +88,9 @@
 
         root.on(defaults.startGesture, className + ' .btn', function (event) {
             var range   = getRange(this);
-            var pos     = range && range.pos();
             var initPos = Math.sin(range.angle) * (event.pageX || (event.touches[0] && event.touches[0].pageX) || 0)
                         + Math.cos(range.angle) * (event.pageY || (event.touches[0] && event.touches[0].pageY) || 0);
-
+            var pos;
 
             function animate(event) {
                 event.preventDefault();
@@ -148,10 +140,8 @@
     });
 
     function createRange(input, angle) {
-        if (!$(input).closest('.' + defaults.name).length) {
-            var range = new Range(input, angle);
-            range.container.data('range', range);
-        }
+        var range = new Range(input, angle);
+        return range.container.data('range', range);
     }
 
     function getRange(item) {
@@ -159,12 +149,14 @@
         return element.data('range');
     }
 
-    // plugin
-    $.fn.range = function(angle) {
+    window.WheelOfLife = function(container, edges) {
         Range.events();
-        return this.each(function() {
-            createRange($(this), angle);
-        });
+        for (var i = 0; i < edges; i++) {
+            var input        = $('<input type=range min=1 max=4 value=1>').appendTo(container);
+            var angle        = Math.PI * i / (edges / 2);
+            var rangeWrapper = createRange(input, angle);
+            $.translate(rangeWrapper[0], 100 * Math.sin(angle) + 250, 100 * Math.cos(angle) + 250)
+        }
     };
 
 })(jQuery);
