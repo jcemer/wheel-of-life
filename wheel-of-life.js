@@ -54,7 +54,6 @@
         canvasAttr:    'wheel-of-life-canvas',
         rangeAttr:     'wheel-of-life-range',
         rangeBtnAttr:  'wheel-of-life-range-btn',
-        tapGesture:    isTouch ? 'tap' : 'click',
         startGesture:  isTouch ? 'touchstart' : 'mousedown',
         moveGesture:   isTouch ? 'touchmove' : 'mousemove',
         stopGesture:   isTouch ? 'touchend touchcancel' : 'mouseup'
