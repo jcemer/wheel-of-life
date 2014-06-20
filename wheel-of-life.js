@@ -184,9 +184,9 @@
 
         root.on(defaults.startGesture, '[data-' + defaults.rangeBtnAttr + ']', function (event) {
             var range   = getRange(this);
+            var pos     = range.pos();
             var initPos = Math.sin(range.angle) * (event.pageX || (event.touches[0] && event.touches[0].pageX) || 0)
                         + Math.cos(range.angle) * (event.pageY || (event.touches[0] && event.touches[0].pageY) || 0);
-            var pos;
 
             function animate(event) {
                 event.preventDefault();
@@ -207,8 +207,8 @@
 
             if (range) {
                 range.moving(true);
-                root.bind(defaults.moveGesture, animate);
-                root.bind(defaults.stopGesture, stop);
+                root.on(defaults.moveGesture, animate);
+                root.on(defaults.stopGesture, stop);
             }
         });
     }
