@@ -26,18 +26,18 @@
         transform3d: !!(window.WebKitCSSMatrix && 'm11' in new WebKitCSSMatrix())
     };
 
-    $.translate = function(element, deltaX, deltaY) {
+    $.translate = function(element, x, y) {
         var property = $.CSS.getProperty('Transform');
-        if (typeof deltaX === 'number') deltaX = deltaX + 'px';
-        if (typeof deltaY === 'number') deltaY = deltaY + 'px';
- 
+        if (typeof x === 'number') x = x + 'px';
+        if (typeof y === 'number') y = y + 'px';
+
         if ($.supports.transform3d) {
-            element.style[property] = 'translate3d(' + deltaX + ', ' + deltaY + ', 0)';
+            element.style[property] = 'translate3d(' + x + ', ' + y + ', 0)';
         } else if ($.supports.transform) {
-            element.style[property] = 'translate(' + deltaX + ', ' + deltaY + ')';
+            element.style[property] = 'translate(' + x + ', ' + y + ')';
         } else {
-            element.style.left      = deltaX;
-            element.style.top       = deltaY;
+            element.style.left      = x;
+            element.style.top       = y;
         }
     };
 })(jQuery);
@@ -61,18 +61,44 @@
         this.size         = size;
         this.halfSize     = size / 2;
         this.centerRadius = centerRadius;
+        this.edges        = [];
 
         this.element      = $('<canvas class=' + defaults.canvasAttr + ' width=' + size + ' height=' + size + ' />');
         this.ctx          = this.element[0].getContext('2d');
-
-        this.render();
     }
 
     $.extend(Canvas.prototype, {
+        init: function () {
+            this.allowRender = true;
+            this.render();
+        },
+        clear: function () {
+            this.ctx.clearRect(0, 0, this.size, this.size);
+        },
         render: function () {
+            this.clear();
+            this.renderArc();
+            this.renderEdgesLine();
+        },
+        renderArc: function () {
             this.ctx.beginPath();
             this.ctx.arc(this.halfSize, this.halfSize, this.centerRadius, 0, 2 * Math.PI);
             this.ctx.stroke();
+        },
+        renderEdgesLine: function () {
+            this.ctx.beginPath();
+            for (var edge = 0; edge < this.edges.length; edge++) {
+                this.ctx.lineTo(this.edges[edge].x, this.edges[edge].y);
+            }
+            this.ctx.closePath();
+            this.ctx.stroke();
+        },
+        moveEdge: function (edge, angle, pos) {
+            this.edges[edge] = {
+                x: Math.sin(angle) * (pos + this.centerRadius) + this.halfSize,
+                y: Math.cos(angle) * (pos + this.centerRadius) + this.halfSize
+            }
+            this.allowRender && this.render();
         }
     });
 
@@ -93,13 +119,13 @@
         this.max       = parseInt(this.input.attr('max'), 10);
         this.gap       = size / (this.max - this.min);
         this.current   = parseInt(this.input.val(), 10) - this.min;
-
-        // init
-        this.change(this.current);
-        this.input.trigger('init', [this.current, this]);
     }
 
     $.extend(Range.prototype, {
+        init: function () {
+            this.change(this.current);
+            this.input.trigger('init', [this.current, this]);
+        },
         pos: function () {
             return this.current * this.gap;
         },
@@ -110,6 +136,7 @@
             var pos = to * this.gap;
             $.translate(this.btn[0], Math.sin(this.angle) * pos, Math.cos(this.angle) * pos);
             this.input.trigger('move', [to, this]);
+            this.moveCanvas && this.moveCanvas(pos);
         },
         change: function(to) {
             to = Math.round(to);
@@ -118,6 +145,11 @@
             this.current = to;
             this.input.val(this.current + this.min);
             this.input.trigger('change', [to, this]);
+        },
+        addCanvas: function (canvas, edge) {
+            this.moveCanvas = function (pos) {
+                canvas.moveEdge(edge, this.angle, pos);
+            }
         }
     });
 
@@ -179,12 +211,15 @@
         var size     = container.width();
         var halfSize = size / 2;
         var canvas   = createCanvas(container, size, centerRadius);
-        for (var i = 0; i < edges; i++) {
-            var angle = Math.PI * i / (edges / 2);
+        for (var edge = 0; edge < edges; edge++) {
+            var angle = Math.PI * edge / (edges / 2);
             var range = createRange(container, angle, halfSize - centerRadius);
-            $.translate(range.container[0], centerRadius * Math.sin(angle) + halfSize, 
-                                           centerRadius * Math.cos(angle) + halfSize);
+            range.addCanvas(canvas, edge);
+            range.init();
+            $.translate(range.container[0], centerRadius * Math.sin(angle) + halfSize,
+                                            centerRadius * Math.cos(angle) + halfSize);
         }
+        canvas.init();
         Range.events();
     };
 
