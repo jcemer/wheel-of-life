@@ -48,6 +48,7 @@
 
     var isTouch  = document.ontouchstart === null;
     var defaults = {
+        canvasAttr:    'wheel-of-life-canvas',
         rangeAttr:     'wheel-of-life-range',
         rangeBtnAttr:  'wheel-of-life-range-btn',
         tapGesture:    isTouch ? 'tap' : 'click',
@@ -56,8 +57,9 @@
         stopGesture:   isTouch ? 'touchend touchcancel' : 'mouseup'
     };
 
-    function Canvas() {
-
+    function Canvas(size, centerRadius) {
+        this.element   = $('<canvas class=' + defaults.canvasAttr + ' width=' + size + ' height=' + size + ' />');
+        this.ctx       = this.element[0].getContext('2d');
     }
 
     function Range(angle, size) {
@@ -141,10 +143,16 @@
         });
     }
 
+    function createCanvas(container, size) {
+        var canvas = new Canvas(size);
+        container.append(canvas.element);
+        return canvas;
+    }
+
     function createRange(container, angle, size) {
         var range = new Range(angle, size);
-        container.append(range.container);
-        return range.container.data(defaults.rangeAttr, range);
+        container.append(range.container.data(defaults.rangeAttr, range));
+        return range;
     }
 
     function getRange(item) {
@@ -155,10 +163,11 @@
     window.WheelOfLife = function(container, edges, centerRadius) {
         var size     = container.width();
         var halfSize = size / 2;
+        var canvas   = createCanvas(container, size, centerRadius);
         for (var i = 0; i < edges; i++) {
-            var angle          = Math.PI * i / (edges / 2);
-            var rangeContainer = createRange(container, angle, halfSize - centerRadius);
-            $.translate(rangeContainer[0], centerRadius * Math.sin(angle) + halfSize, 
+            var angle = Math.PI * i / (edges / 2);
+            var range = createRange(container, angle, halfSize - centerRadius);
+            $.translate(range.container[0], centerRadius * Math.sin(angle) + halfSize, 
                                            centerRadius * Math.cos(angle) + halfSize);
         }
         Range.events();

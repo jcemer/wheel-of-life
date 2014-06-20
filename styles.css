@@ -64,6 +64,10 @@ h2 {
     height: 500px;
 }
 
+.wheel-of-life-canvas {
+    position: absolute;
+}
+
 .wheel-of-life-range {
     position: absolute;
 }
