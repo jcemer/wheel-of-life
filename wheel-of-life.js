@@ -78,15 +78,19 @@
         render: function () {
             this.clear();
             this.renderArc();
-            this.renderEdgesLine();
             this.renderEdges();
+            this.renderEdgesLine();
         },
         renderArc: function () {
             this.ctx.beginPath();
-            this.ctx.arc(this.halfSize, this.halfSize, this.centerRadius, 0, 2 * Math.PI);
+            this.ctx.strokeStyle = '#A7DBD8';
+            this.ctx.lineWidth = this.halfSize - this.centerRadius;
+            this.ctx.arc(this.halfSize, this.halfSize, this.centerRadius + this.ctx.lineWidth / 2, 0, 2 * Math.PI);
             this.ctx.stroke();
         },
         renderEdges: function () {
+            this.ctx.lineWidth = 1;
+            this.ctx.strokeStyle = '#999999';
             for (var edge = 0; edge < this.edges.length; edge++) {
                 this.ctx.beginPath();
                 this.ctx.lineTo(
@@ -99,13 +103,13 @@
             }
         },
         renderEdgesLine: function () {
+            this.ctx.lineWidth = 1;
             this.ctx.beginPath();
             for (var edge = 0; edge < this.edges.length; edge++) {
                 this.ctx.lineTo(this.edges[edge].x, this.edges[edge].y);
             }
             this.ctx.closePath();
-            this.ctx.stroke();
-            this.ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+            this.ctx.fillStyle = "rgba(0,0,0,.2)";
             this.ctx.fill();
         },
         moveEdge: function (edge, angle, pos) {
